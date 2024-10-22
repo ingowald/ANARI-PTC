@@ -1,0 +1,3 @@
+[submodule "submodules/deepCompositing"]
+	path = submodules/deepCompositing
+	url = https://github.com/ingowald/deepCompositing
