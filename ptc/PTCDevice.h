@@ -25,7 +25,7 @@
 
 namespace ptc {
 
-struct PTCDevice : public anari::DeviceImpl, helium::ParameterizedObject
+  struct PTCDevice : public anari::DeviceImpl, helium::ParameterizedObject
 {
   /////////////////////////////////////////////////////////////////////////////
   // Main interface to accepting API calls

@@ -217,4 +217,12 @@ void FrameWrapper::updateSize()
 
 }
 
+void FrameWrapper::renderFrame()
+{
+  anariRenderFrame(m_device, m_frame);
+  anariFrameReady(m_device,m_frame,ANARI_WAIT);
+  composite();
+}
+
+  
 } // namespace ptc

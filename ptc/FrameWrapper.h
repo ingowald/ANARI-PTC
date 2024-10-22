@@ -27,8 +27,20 @@
 #include <functional>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 
 namespace ptc {
+
+#ifndef PRINT
+# define PRINT(var) std::cout << #var << "=" << var << std::endl;
+#ifdef __WIN32__
+# define PING std::cout << __FILE__ << "::" << __LINE__ << ": " << __FUNCTION__ << std::endl;
+#else
+# define PING std::cout << __FILE__ << "::" << __LINE__ << ": " << __PRETTY_FUNCTION__ << std::endl;
+#endif
+#endif
+
+
 
   using FrameWrapperNotificationHandler = std::function<void(const void *)>;
 
@@ -75,7 +87,7 @@ namespace ptc {
                                uint32_t *height,
                                ANARIDataType *pixelType);
     void frameBufferUnmap(const char *channel);
-    virtual void renderFrame() = 0;
+    void renderFrame();
     int frameReady(ANARIWaitMask);
     void discardFrame();
     /////////////////////////////////////////////////////////////////////////////

@@ -23,10 +23,20 @@
 #include <vector>
 #include <map>
 #include <anari/anari_cpp/ext/linalg.h>
+#include <iostream>
 
 namespace ptc {
   using namespace anari;
   
+#ifndef PRINT
+# define PRINT(var) std::cout << #var << "=" << var << std::endl;
+#ifdef __WIN32__
+# define PING std::cout << __FILE__ << "::" << __LINE__ << ": " << __FUNCTION__ << std::endl;
+#else
+# define PING std::cout << __FILE__ << "::" << __LINE__ << ": " << __PRETTY_FUNCTION__ << std::endl;
+#endif
+#endif
+
   struct CPUCompositor
   {
     CPUCompositor(MPI_Comm comm);
@@ -37,15 +47,15 @@ namespace ptc {
              float    *out_depth,
              const uint32_t *in_color,
              const float    *in_depth);
-  private:
-    math::int2 size { 0,0 };
-
     struct Range {
       inline Range() = default;
       inline Range(int begin, int end) : begin(begin), end(end) {}
       inline int size() const { return end-begin; }
       int begin=0, end=0;
     };
+  private:
+    math::int2 size { 0,0 };
+
 
     Range rangeOfPeer(int peer);
     

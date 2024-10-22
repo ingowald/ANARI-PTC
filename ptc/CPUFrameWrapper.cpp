@@ -24,44 +24,6 @@
 
 namespace ptc {
 
-  // GPU kernels ////////////////////////////////////////////////////////////////
-  
-  // __global__ void writeFrags(dc::DeviceInterface di,
-  //                            uint32_t size_x,
-  //                            uint32_t size_y,
-  //                            const float *d_depth,
-  //                            const void *d_color,
-  //                            ANARIDataType colorType)
-  // {
-  //   const int ix = threadIdx.x + blockIdx.x * blockDim.x;
-  //   const int iy = threadIdx.y + blockIdx.y * blockDim.y;
-  //   if (ix >= size_x)
-  //     return;
-  //   if (iy >= size_y)
-  //     return;
-
-  //   const auto offset = ix + iy * size_x;
-  //   const float z = d_depth[offset];
-
-  //   if (colorType == ANARI_FLOAT32_VEC4) {
-  //     const float *rgba = (const float *)d_color + (offset * 4);
-  //     const float a = rgba[0];
-  //     const float b = rgba[1];
-  //     const float g = rgba[2];
-  //     const float r = rgba[3];
-  //     dc::Fragment frag(z, make_float3(r, g, b), a);
-  //     di.write(ix, iy, frag);
-  //   } else {
-  //     const uint32_t rgba = *((const uint32_t *)d_color + offset);
-  //     const float a = ((rgba >> 24) & 0xff) / 255.f;
-  //     const float b = ((rgba >> 16) & 0xff) / 255.f;
-  //     const float g = ((rgba >> 8) & 0xff) / 255.f;
-  //     const float r = ((rgba >> 0) & 0xff) / 255.f;
-  //     dc::Fragment frag(z, make_float3(r, g, b), a);
-  //     di.write(ix, iy, frag);
-  //   }
-  // }
-
   // FrameWrapper definitions ///////////////////////////////////////////////////
 
   CPUFrameWrapper
@@ -107,6 +69,7 @@ namespace ptc {
 
   void CPUFrameWrapper::composite()
   {
+    anariFrameReady(m_device, m_frame, ANARI_WAIT);
     anari::math::uint2 size;
     ANARIDataType ptType = ANARI_UNKNOWN;
     const float *depth

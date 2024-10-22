@@ -30,7 +30,7 @@ namespace ptc {
                     MPI_Comm = MPI_COMM_WORLD);
     virtual ~CPUFrameWrapper();
     
-    void renderFrame() override;
+    // void renderFrame() override;
     void updateSize() override;
     void composite() override;
     void cleanup() override;
