@@ -32,9 +32,7 @@ FrameWrapper::FrameWrapper(ANARIDevice d,
     ANARIFrame f,
     FrameWrapperNotificationHandler onObjectDestroy,
     MPI_Comm comm)
-    : m_onObjectDestroy(onObjectDestroy),
-      m_device(d),
-      m_frame(f)
+    : m_onObjectDestroy(onObjectDestroy), m_device(d), m_frame(f)
 {
   MPI_Comm_rank(comm, &m_rank);
   anariRetain(m_device, m_device);
@@ -127,7 +125,6 @@ void FrameWrapper::unmapParameterArray(const char *name)
 
 void FrameWrapper::commitParameters()
 {
-  updateSize();
   anariCommitParameters(m_device, m_frame);
 }
 
@@ -214,15 +211,14 @@ void FrameWrapper::updateSize()
 
   m_color.resize(size.x * size.y * sizeof(anari::math::float4));
   m_depth.resize(size.x * size.y);
-
 }
 
 void FrameWrapper::renderFrame()
 {
+  updateSize();
   anariRenderFrame(m_device, m_frame);
-  anariFrameReady(m_device,m_frame,ANARI_WAIT);
+  anariFrameReady(m_device, m_frame, ANARI_WAIT);
   composite();
 }
 
-  
 } // namespace ptc
