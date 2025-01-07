@@ -1,5 +1,5 @@
 # ======================================================================== #
-# Copyright 2024__ Ingo Wald                                               #
+# Copyright 2021-2021 Ingo Wald                                            #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
 # you may not use this file except in compliance with the License.         #
@@ -14,24 +14,5 @@
 # limitations under the License.                                           #
 # ======================================================================== #
 
-# ------------------------------------------------------------------
-find_package(TBB REQUIRED)
-# ------------------------------------------------------------------
-
-add_library(cpu_compositing STATIC
-  CPUCompositor.h
-  CPUCompositor.cpp
-  )
-
-target_link_libraries(cpu_compositing
-  MPI::MPI_CXX
-  anari::helium
-  tbb
-  )
-target_include_directories(cpu_compositing
-  PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  )
-
-set_property(TARGET cpu_compositing PROPERTY POSITION_INDEPENDENT_CODE ON)
-
+add_library(stb_image INTERFACE)
+target_include_directories(stb_image INTERFACE ${CMAKE_CURRENT_LIST_DIR})
