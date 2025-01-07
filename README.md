@@ -22,9 +22,10 @@ This project requires
   (https://github.com/KhronosGroup/ANARI-SDK)
 - cmake, c compiler, etc (which you already need for the ANARI SDK,
   anyway)
-- when buiding the *optional* (GPU-compositing version): CUDA (if CUDA
+- when buiding the *optional* (GPU-compositing version): `CUDA` (if CUDA
   is disabled or cannot be found the project will automatically fall
   back to CPU compositing)
+- when building the CPU version: `tbb`
 - MPI development packages. When built with CUDA support you'll need a
   CUDA-aware MPI build; for the cpu-only version any MPI build should
   do.
@@ -49,17 +50,18 @@ rendering path, just use this with `ANARI_LIBRARY` set to `ptc`
 
 # Contributors
 
-Though the project lives under my github namespace, and though all
-files bear my copyright headers, much of the latest version of the
-code is actually entirely credit-due to Jeff Amstutz - who always
-takes whatever duct-tape mess i've once written, burns it in a
-bonfire, and rewrites it in a much cleaner and (usually?) more
-reliable way. 
+Though the project lives under my github namespace (and all files bear
+my copyright headers), much of the latest version of the code is
+actually entirely credit-due to Jeff Amstutz - who always takes
+whatever duct-tape mess i've once written, burns it in a bonfire, and
+rewrites it in a much cleaner and more reliable way.
 
 # Related Projects
 
-- barney and haystack
-- pynari
+- ANARI-SDK (https://github.com/KhronosGroup/ANARI-SDK)
+- barney (https://github.com/ingowald/barney)
+- pynari (https://github.com/ingowald/pynari)
+- VisRTX (https://github.com/NVIDIA/VisRTX)
 
 # Version History
 
