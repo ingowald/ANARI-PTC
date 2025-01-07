@@ -14,6 +14,10 @@
 # limitations under the License.                                           #
 # ======================================================================== #
 
+# ------------------------------------------------------------------
+find_package(TBB REQUIRED)
+# ------------------------------------------------------------------
+
 add_library(cpu_compositing STATIC
   CPUCompositor.h
   CPUCompositor.cpp
