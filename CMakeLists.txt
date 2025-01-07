@@ -72,7 +72,7 @@ find_package(MPI REQUIRED)
 # ------------------------------------------------------------------
 
 if (USE_CUDA)
-  add_subdirectory(submodules/deepCompositing)
+  add_subdirectory(ext/deepCompositing)
 else()
   add_subdirectory(cpu_compositing)
 endif()
