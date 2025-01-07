@@ -24,7 +24,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-project(ANARI_PTC VERSION 1.0.0 LANGUAGES C CXX)
+project(ANARI_PTC VERSION 1.1.0 LANGUAGES C CXX)
 
 # ------------------------------------------------------------------
 option(PTC_DISABLE_CUDA "Explicitly Disable CUDA Support" off)

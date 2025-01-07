@@ -61,3 +61,14 @@ reliable way.
 - barney and haystack
 - pynari
 
+# Version History
+
+## v1.0.0
+
+- first working version
+
+## v1.1.0
+
+- added CI build
+- fixed various config issues for different cmake/linux/gcc versions
+- now properly builds even on systems that do not have cuda installed
