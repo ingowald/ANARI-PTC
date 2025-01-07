@@ -75,8 +75,8 @@ jobs:
       run: |
         git clone https://github.com/KhronosGroup/ANARI-SDK
         cd ANARI-SDK
-	mkdir builddir
-	cmake . -B builddir -DCMAKE_BUILD_TYPE=Release -DCMAKE_CUDA_ARCHITECTURES=all-major install
+        mkdir builddir
+        cmake . -B builddir -DCMAKE_BUILD_TYPE=Release -DCMAKE_CUDA_ARCHITECTURES=all-major install
       shell: bash
 
     - name: Configure cmake
