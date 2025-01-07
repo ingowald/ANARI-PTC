@@ -3,7 +3,7 @@ name: Ubuntu
 on:
   push:
     branches:
-      - ci-build
+      - iw/ci-build
 
 jobs:
   build:
