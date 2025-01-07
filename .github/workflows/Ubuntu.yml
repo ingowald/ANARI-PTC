@@ -9,13 +9,16 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       # explicit include-based build matrix, of known valid options
       matrix:
         include:
           # 24.04 supports CUDA 12.4+
           - os: ubuntu-24.04
             cuda: "12.6"
+            gcc: 13
+          - os: ubuntu-24.04
+            cuda: "none"
             gcc: 13
           # 22.04 supports CUDA 11.7+
           - os: ubuntu-22.04
@@ -73,10 +76,12 @@ jobs:
 
     - name: Build/Install ANARI SDK
       run: |
-        git clone https://github.com/KhronosGroup/ANARI-SDK
+        git clone https://github.com/KhronosGroup/ANARI-SDK -b v0.11.1
         cd ANARI-SDK
         mkdir builddir
-        cmake . -B builddir -DCMAKE_BUILD_TYPE=Release -DCMAKE_CUDA_ARCHITECTURES=all-major install
+        cmake . -B builddir -DCMAKE_BUILD_TYPE=Release -DCMAKE_CUDA_ARCHITECTURES=all-major
+        cmake --build builddir        
+        cmake --install builddir        
       shell: bash
 
     - name: Configure cmake

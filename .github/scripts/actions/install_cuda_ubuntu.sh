@@ -48,6 +48,11 @@ function version_lt() {
 # Get the cuda version from the environment as $cuda.
 CUDA_VERSION_MAJOR_MINOR=${cuda}
 
+if [[ "${cuda}" == "none" ]] ; then
+    echo "no cuda install requested, exiting"
+    exit
+fi
+
 # Split the version.
 # We (might/probably) don't know PATCH at this point - it depends which version gets installed.
 CUDA_MAJOR=$(echo "${CUDA_VERSION_MAJOR_MINOR}" | cut -d. -f1)
