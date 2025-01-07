@@ -61,6 +61,7 @@ jobs:
 
     - name: Build/Install ANARI SDK
       run: |
+        sudo apt-get install -y libtbb-dev
         git clone https://github.com/KhronosGroup/ANARI-SDK -b v0.11.1
         cd ANARI-SDK
         mkdir builddir
