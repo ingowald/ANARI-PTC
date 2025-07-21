@@ -424,7 +424,8 @@ namespace dc {
   // }
 
   __global__
-  void compositeKernel(uint32_t *compositedColor,
+  void compositeKernel(void *compositedColor,
+                       bool useFloat4,
                        const uint32_t *compOffsets,
                        Fragment *incomingFragments,
                        uint32_t numPixelsOnThisRank,
@@ -471,7 +472,10 @@ namespace dc {
 
       nextClosestFragment->z = 1e20f;
     }
-    compositedColor[pixelIdx] = make_rgba(color);
+    if (useFloat4) 
+      ((float4*)compositedColor)[pixelIdx] = make_float4(color.x,color.y,color.z,alpha);
+    else
+      ((uint32_t*)compositedColor)[pixelIdx] = make_rgba(color);
   }
     
   inline std::ostream &operator<<(std::ostream &o,
@@ -486,9 +490,12 @@ namespace dc {
   inline int computeCountersPerByte(uint32_t maxFragsPerPixel)
   {
     assert(maxFragsPerPixel <= 255);
-    if (maxFragsPerPixel < 4) return 4;
-    else if (maxFragsPerPixel < 16) return 2;
-    else return 1;
+    if (maxFragsPerPixel < 4)
+      return 4;
+    else if (maxFragsPerPixel < 16)
+      return 2;
+    else
+      return 1;
   }
   
   
@@ -576,7 +583,7 @@ namespace dc {
     }
   }
 
-  void Compositor::finish(uint32_t *whereToWriteFinalPixels)
+  void Compositor::finish(void *whereToWriteFinalPixels, bool useFloat4)
   {
     CUDA_SYNC_CHECK();
     if (affinitizedGPU < 0)
@@ -970,12 +977,18 @@ namespace dc {
     // ==================================================================
     // finally, have all fragments ... composite
     // ==================================================================
+    size_t pixelSize
+      = useFloat4
+      ? sizeof(float4)
+      : sizeof(uint32_t);
+    
     prof_cudaCompositing.enter();
-    uint32_t *compositedColor = nullptr;
+    void *compositedColor = nullptr;
     CUDA_CALL(Malloc(&compositedColor,
-                     numPixelsOnThisRank*sizeof(*compositedColor)));
+                     numPixelsOnThisRank*pixelSize));
     compositeKernel<<<divRoundUp((int)numPixelsOnThisRank,128),128>>>
-      (compositedColor,fullIntCounters,
+      (compositedColor,useFloat4,
+       fullIntCounters,
        incomingFragments,numPixelsOnThisRank,size);
     CUDA_SYNC_CHECK();
     prof_cudaCompositing.leave();
@@ -990,7 +1003,7 @@ namespace dc {
       std::vector<MPI_Request> requests(size);
       CUDA_CALL(Memcpy(whereToWriteFinalPixels,
                        compositedColor,
-                       std::min(numPixelsOnThisRank,numPixelsOrg)*sizeof(*compositedColor),
+                       std::min(numPixelsOnThisRank,numPixelsOrg)*pixelSize,
                        cudaMemcpyDefault));
       // std::copy(compositedColor,
       //           compositedColor+numPixelsOnThisRank,
@@ -999,8 +1012,8 @@ namespace dc {
         int begin = pixelBegin(node);//(node+0)*fbSize.x*fbSize.y / size;
         int end   = std::min(numPixelsOrg,pixelEnd(node));//(node+1)*fbSize.x*fbSize.y / size;
         if (begin < end)
-          MPI_CALL(Irecv(whereToWriteFinalPixels+begin,
-                         (end-begin)*sizeof(*whereToWriteFinalPixels),
+          MPI_CALL(Irecv(((uint8_t*)whereToWriteFinalPixels)+begin*pixelSize,
+                         (end-begin)*pixelSize,
                          MPI_BYTE,node,0,comm,&requests[node]));
       }
       MPI_CALL(Waitall(size-1,requests.data()+1,MPI_STATUS_IGNORE));
@@ -1010,7 +1023,7 @@ namespace dc {
       int begin = pixelBegin(rank);//(node+0)*fbSize.x*fbSize.y / size;
       int end   = std::min(numPixelsOrg,pixelEnd(rank));//(node+1)*fbSize.x*fbSize.y / size;
       MPI_CALL(Send(compositedColor,
-                    (end-begin)/*numPixelsOnThisRankOrg*/*sizeof(*whereToWriteFinalPixels),
+                    (end-begin)/*numPixelsOnThisRankOrg*/*pixelSize,
                     MPI_BYTE,0,0,comm));
       prof_finalAssemble.leave();
     }

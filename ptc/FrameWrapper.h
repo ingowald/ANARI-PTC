@@ -109,8 +109,9 @@ namespace ptc {
     anari::math::uint2 m_newSize{0u, 0u};
     anari::math::uint2 m_currentSize{0u, 0u};
 
-    std::vector<float> m_depth;
-    std::vector<uint8_t> m_color;
+    float *m_depth = nullptr;
+    void  *m_color = nullptr;
+    
     uint32_t *d_color_in{nullptr};
     uint32_t *d_color_out{nullptr};
     float *d_depth{nullptr};

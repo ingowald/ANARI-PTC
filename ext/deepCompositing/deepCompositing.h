@@ -181,7 +181,7 @@ namespace dc {
         has set up. Composited values will get written to
         'whereToWriteFinalPixels' on rank 0 (where this value must not
         be null); all other ranks should pass null here */
-    void finish(uint32_t *whereToWriteFinalPixels);
+    void finish(void *whereToWriteFinalPixels, bool useFloat4);
 
     /*! resize the (device) frame buffer to given size */
     void resize(const int2 &size);

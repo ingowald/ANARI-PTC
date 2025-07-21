@@ -94,18 +94,17 @@ namespace ptc {
 
     if (m_currentColorType == ANARI_UNKNOWN)
       return;
-
-    if (m_currentColorType == ANARI_FLOAT32_VEC4) {
-      throw std::runtime_error
-        ("support for FLOAT32_VEC4 color channel not implemented");
-    }
-
+    
     const auto &size = m_currentSize;
-
+    
     m_deepComp.resize(size.x, size.y);
 
-    cudaMalloc((void **)&d_color_in, size.x * size.y * sizeof(*d_color_in));
-    cudaMalloc((void **)&d_color_out, size.x * size.y * sizeof(*d_color_out));
+    size_t colorSize
+      = (m_currentColorType == ANARI_FLOAT32_VEC4)
+      ? sizeof(float4)
+      : sizeof(uint32_t);
+    cudaMalloc((void **)&d_color_in,  size.x * size.y * colorSize);
+    cudaMalloc((void **)&d_color_out, size.x * size.y * colorSize);
     cudaMalloc((void **)&d_depth, size.x * size.y * sizeof(*d_depth));
     CUDA_SYNC_CHECK();
   }
@@ -119,16 +118,20 @@ namespace ptc {
     const float *depth
       = (const float *)anariMapFrame(m_device, m_frame, "channel.depth",
                                      &size.x, &size.y, &ptType);
-    const uint32_t *color
-      = (const uint32_t *)anariMapFrame(m_device, m_frame, "channel.color",
-                                        &size.x, &size.y, &ptType);
+    const void *color
+      = (const void *)anariMapFrame(m_device, m_frame, "channel.color",
+                                    &size.x, &size.y, &ptType);
+    size_t colorSize
+      = (m_currentColorType == ANARI_FLOAT32_VEC4)
+      ? sizeof(float4)
+      : sizeof(uint32_t);
     cudaMemcpy
       (d_depth, depth, size.x * size.y * sizeof(float),
        cudaMemcpyDefault);
     cudaMemcpy
-      (d_color_in, color, size.x * size.y * sizeof(uint32_t),
+      (d_color_in, color, size.x * size.y * colorSize,
        cudaMemcpyDefault);
-
+    
     auto ngx = dc::divRoundUp(size.x, 16);
     auto ngy = dc::divRoundUp(size.y, 16);
 
@@ -139,10 +142,11 @@ namespace ptc {
        d_depth,
        d_color_in,
        m_currentColorType);
-    m_deepComp.finish(m_rank == 0 ? d_color_out : nullptr);
-    cudaMemcpy(m_color.data(),
+    m_deepComp.finish(m_rank == 0 ? d_color_out : nullptr,
+                      m_currentColorType == ANARI_FLOAT32_VEC4);
+    cudaMemcpy(m_color, 
                d_color_out,
-               size.x * size.y * sizeof(uint32_t),
+               size.x * size.y * colorSize,
                cudaMemcpyDefault);
 
     CUDA_SYNC_CHECK();
@@ -153,7 +157,7 @@ namespace ptc {
 
   void CUDAFrameWrapper::cleanup()
   {
-    if (d_depth)
+    if (d_depth) 
       cudaFree(d_depth);
     if (d_color_in)
       cudaFree(d_color_in);

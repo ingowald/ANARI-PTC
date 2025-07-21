@@ -43,6 +43,8 @@ FrameWrapper::~FrameWrapper()
 {
   anariRelease(m_device, m_frame);
   anariRelease(m_device, m_device);
+  if (m_color) free(m_color);
+  if (m_depth) free(m_depth);
   m_onObjectDestroy(this);
 }
 
@@ -159,10 +161,10 @@ const void *FrameWrapper::frameBufferMap(const char *_channel,
 
   if (channel == "channel.color") {
     *pixelType = m_currentColorType;
-    return m_color.data();
+    return m_color;
   } else if (channel == "channel.depth") {
     *pixelType = ANARI_FLOAT32;
-    return m_depth.data();
+    return m_depth;
   }
 
   *width = 0;
@@ -209,8 +211,10 @@ void FrameWrapper::updateSize()
 
   const auto &size = m_currentSize;
 
-  m_color.resize(size.x * size.y * sizeof(anari::math::float4));
-  m_depth.resize(size.x * size.y);
+  if (m_color) free(m_color); m_color = nullptr;
+  if (m_depth) free(m_depth); m_depth = nullptr;
+  m_color = malloc(size.x * size.y * sizeof(anari::math::float4));
+  m_depth = (float*)malloc(size.x * size.y * sizeof(float));
 }
 
 void FrameWrapper::renderFrame()
