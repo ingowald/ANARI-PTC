@@ -92,7 +92,7 @@ namespace ptc {
   
   void CUDAFrameWrapper::updateSize()
   {
-    if (m_newSize == m_currentSize)
+    if (m_newSize == m_currentSize && m_newColorType == m_currentColorType)
       return;
     FrameWrapper::updateSize();
 

@@ -57,12 +57,11 @@ void FrameWrapper::setParameter(
     const char *_name, ANARIDataType type, const void *mem)
 {
   std::string_view name = _name;
-
   if (type == ANARI_UINT32_VEC2 && name == "size")
     m_newSize = bit_cast<anari::math::uint2>(type, mem);
-  else if (type == ANARI_DATA_TYPE && name == "channel.color")
+  else if (type == ANARI_DATA_TYPE && name == "channel.color") {
     m_newColorType = bit_cast<ANARIDataType>(type, mem);
-  else if (type == ANARI_DATA_TYPE && name == "channel.depth")
+  } else if (type == ANARI_DATA_TYPE && name == "channel.depth")
     return; // we don't want the app to turn off the depth channel
 
   anariSetParameter(m_device, m_frame, _name, type, mem);
@@ -165,7 +164,8 @@ const void *FrameWrapper::frameBufferMap(const char *_channel,
   } else if (channel == "channel.depth") {
     *pixelType = ANARI_FLOAT32;
     return m_depth;
-  }
+  } else
+    std::cout << "unsupported mapping channel " << _channel << std::endl;
 
   *width = 0;
   *height = 0;
@@ -190,7 +190,7 @@ void FrameWrapper::discardFrame()
 
 void FrameWrapper::updateSize()
 {
-  if (m_newSize == m_currentSize)
+  if (m_newSize == m_currentSize && m_newColorType == m_currentColorType)
     return;
 
   cleanup();
