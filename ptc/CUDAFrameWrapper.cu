@@ -47,10 +47,17 @@ namespace ptc {
 
     if (colorType == ANARI_FLOAT32_VEC4) {
       const float *rgba = (const float *)d_color + (offset * 4);
+#if 1
+      const float r = rgba[0];
+      const float g = rgba[1];
+      const float b = rgba[2];
+      const float a = rgba[3];
+#else
       const float a = rgba[0];
       const float b = rgba[1];
       const float g = rgba[2];
       const float r = rgba[3];
+#endif
       dc::Fragment frag(z, make_float3(r, g, b), a);
       di.write(ix, iy, frag);
     } else {
@@ -142,8 +149,9 @@ namespace ptc {
        d_depth,
        d_color_in,
        m_currentColorType);
+    bool useFloat4 = (m_currentColorType == ANARI_FLOAT32_VEC4);
     m_deepComp.finish(m_rank == 0 ? d_color_out : nullptr,
-                      m_currentColorType == ANARI_FLOAT32_VEC4);
+                      useFloat4);
     cudaMemcpy(m_color, 
                d_color_out,
                size.x * size.y * colorSize,

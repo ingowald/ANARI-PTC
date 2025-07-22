@@ -385,9 +385,7 @@ namespace dc {
     int pixelID = threadIdx.x + blockIdx.x*blockDim.x;
     if (pixelID >= numPixelsPadded) return;
 
-    // int fbSizeX = 320;
-    // int fbSizeY = 200;
-    bool dbg = 0;//pixelID == 0;//0; //pixelID == (fbSizeX*fbSizeY/2+fbSizeX/2);
+    bool dbg = 0;
     
     uint32_t end = offsets[pixelID];
     uint32_t begin
@@ -434,8 +432,6 @@ namespace dc {
     int pixelIdx = threadIdx.x + blockIdx.x*blockDim.x;
     if (pixelIdx >= numPixelsOnThisRank) return;
 
-    bool dbg = 0;//pixelIdx == 0;
-    
     float alpha = 0.f;
     float3 color = make_float3(0.f,0.f,0.f);
     while (1) {
@@ -456,11 +452,6 @@ namespace dc {
         break;
 
       float4 fragColor = nextClosestFragment->getRGBA();
-      if (dbg) printf("fragColor %f %f %f %f\n",
-                      fragColor.x,
-                      fragColor.y,
-                      fragColor.z,
-                      fragColor.w);
       color = color
         +  (1.f-alpha)
         // *  fragColor.w
@@ -473,7 +464,8 @@ namespace dc {
       nextClosestFragment->z = 1e20f;
     }
     if (useFloat4) 
-      ((float4*)compositedColor)[pixelIdx] = make_float4(color.x,color.y,color.z,alpha);
+      // ((float4*)compositedColor)[pixelIdx] = make_float4(.2f,.4f,.6f,1.f);
+      ((float4*)compositedColor)[pixelIdx] = make_float4(color.x,color.y,color.z,1.f);
     else
       ((uint32_t*)compositedColor)[pixelIdx] = make_rgba(color);
   }
@@ -550,18 +542,13 @@ namespace dc {
     int threadID = threadIdx.x+blockIdx.x*blockDim.x;
     if (threadID >= numLoBitCounters) return;
 
-    // bool dbg = threadID == 13;
-    
     uint8_t loBitCounter = 0;
     int bitsPerCounter = 8 / numCountersPerByte;
-    // if (dbg) printf("bits %i\n",bitsPerCounter);
     
     for (int i=0;i<numCountersPerByte;i++) {
       int pixelID = numCountersPerByte*threadID+i;
       uint32_t counter = fullIntCounters[pixelID];
       loBitCounter += (counter << (i*bitsPerCounter));
-      // if (dbg) printf("ctr %i shift %i res %i\n",
-      //                 counter,i*bitsPerCounter,loBitCounter);
     }
     loBitCounters[threadID] = loBitCounter;
   }
@@ -1011,10 +998,11 @@ namespace dc {
       for (int node=1;node<size;node++) {
         int begin = pixelBegin(node);//(node+0)*fbSize.x*fbSize.y / size;
         int end   = std::min(numPixelsOrg,pixelEnd(node));//(node+1)*fbSize.x*fbSize.y / size;
-        if (begin < end)
+        if (begin < end) {
           MPI_CALL(Irecv(((uint8_t*)whereToWriteFinalPixels)+begin*pixelSize,
                          (end-begin)*pixelSize,
                          MPI_BYTE,node,0,comm,&requests[node]));
+        }
       }
       MPI_CALL(Waitall(size-1,requests.data()+1,MPI_STATUS_IGNORE));
       prof_finalAssemble.leave();

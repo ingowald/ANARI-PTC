@@ -328,7 +328,6 @@ namespace dc {
     frags[insertPos] = fragment;
     listLength++;
     counters[idx] = listLength;
-    if (dbg) printf("write: list length %i\n",listLength);
     return listLength;
   }
 

@@ -204,16 +204,15 @@ void FrameWrapper::updateSize()
   if (m_currentColorType == ANARI_UNKNOWN)
     return;
 
-  if (m_currentColorType == ANARI_FLOAT32_VEC4) {
-    throw std::runtime_error(
-        "support for FLOAT32_VEC4 color channel not implemented");
-  }
-
   const auto &size = m_currentSize;
 
   if (m_color) free(m_color); m_color = nullptr;
   if (m_depth) free(m_depth); m_depth = nullptr;
-  m_color = malloc(size.x * size.y * sizeof(anari::math::float4));
+  size_t pixelSize 
+    = (m_currentColorType == ANARI_FLOAT32_VEC4)
+    ? (4*sizeof(float))
+    : sizeof(uint32_t);
+  m_color = malloc(size.x * size.y * pixelSize);
   m_depth = (float*)malloc(size.x * size.y * sizeof(float));
 }
 

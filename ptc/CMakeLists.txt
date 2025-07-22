@@ -31,7 +31,12 @@ if (USE_CUDA)
   set_source_files_properties(CUDAFrameWrapper.cu
     PROPERTIES COMPILE_FLAGS "--expt-relaxed-constexpr"
     )
-  project_link_libraries(anari::helium deepCompositing)
+    project_link_libraries(
+      anari::helium
+      deepCompositing
+      anari::helium
+      anari::anari
+    )
   project_compile_definitions(PRIVATE -DPTC_CUDA=1)
   project_include_directories(PRIVATE ${PROJECT_SOURCE_DIR}/../submodules/deepCompositing)
 else()
@@ -39,8 +44,14 @@ else()
     PTCDevice.cpp
     PTCLibrary.cpp
     FrameWrapper.cpp
-    CPUFrameWrapper.cpp)
-  project_link_libraries(anari::helium cpu_compositing)
+    CPUFrameWrapper.cpp
+  )
+  project_link_libraries(
+    anari::helium
+    cpu_compositing
+    anari::helium
+    anari::anari
+  )
 endif()
 
 
