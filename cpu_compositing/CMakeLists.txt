@@ -26,7 +26,7 @@ add_library(cpu_compositing STATIC
 target_link_libraries(cpu_compositing
   MPI::MPI_CXX
   anari::helium
-  tbb
+  TBB:tbb
   )
 target_include_directories(cpu_compositing
   PUBLIC
