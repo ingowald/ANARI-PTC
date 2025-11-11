@@ -22,9 +22,9 @@
 #include <algorithm>
 #include <memory>
 #if PTC_CUDA
-# include "CUDAFrameWrapper.h"
+#include "CUDAFrameWrapper.h"
 #else
-# include "CPUFrameWrapper.h"
+#include "CPUFrameWrapper.h"
 #endif
 
 namespace ptc {
@@ -464,7 +464,16 @@ void PTCDevice::initDevice()
 
 void PTCDevice::deviceCommitParameters()
 {
-  // TODO
+  initDevice();
+  auto handle = (ANARIDevice)m_ptd;
+  m_ptd->unsetAllParameters(handle);
+  for (auto param = params_begin(); param != params_end(); ++param) {
+    m_ptd->setParameter(handle,
+        param->first.c_str(),
+        param->second.type(),
+        param->second.data());
+  }
+  m_ptd->commitParameters(handle);
 }
 
 int PTCDevice::deviceGetProperty(
